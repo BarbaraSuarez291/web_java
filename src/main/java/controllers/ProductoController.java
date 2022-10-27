@@ -47,8 +47,6 @@ public class ProductoController extends HttpServlet {
 		default -> response.getWriter().print("Not found (GET)");
 	}
 	}
-	
-	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		var accion = request.getParameter("accion");
@@ -88,10 +86,8 @@ public class ProductoController extends HttpServlet {
 			throws ServletException, IOException {
 
 		var listado=  dao.all();
-		
 		System.out.println(listado);
 		request.setAttribute("productos", listado);
-		
 		var rd = request.getRequestDispatcher("vistas/productos/index.jsp");
 		rd.forward(request, response);
 	}
@@ -101,68 +97,97 @@ public class ProductoController extends HttpServlet {
 
 		var sId = request.getParameter("id");
 		var id = Integer.parseInt(sId);
-		
-		
 		dao.delete(id);
-		
-
 		// Salida
 		response.sendRedirect("ProductoController");
 		
 	}
 
 	private void postUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		// Levantar datos
-		String nombre = request.getParameter("nombre");
-		String precio = request.getParameter("precio");
-		String cant = request.getParameter("cant");
-		
-		var precio_prod = Double.parseDouble(precio);
-		var cant_prod = Integer.parseInt(cant);
-		var sId = request.getParameter("id");
-		var id = Integer.parseInt(sId);
-		
-		//Proceso
-		var prod = dao.getById(id);
-		prod.setNombre(nombre);
-		prod.setPrecio(precio_prod);
-		prod.setCant(cant_prod);
-		
-		
-		dao.update(prod);
 		
 
-		// Salida
-		response.sendRedirect("ProductoController");
+		if(request.getParameter("nombre").isEmpty() || request.getParameter("precio").isEmpty() || request.getParameter("cant").isEmpty()) {
+			response.sendError(404, "No puede quedar ningun campo vacio.");
+		}else {
+			String nombre = request.getParameter("nombre");
+			String precio = request.getParameter("precio");
+			String cant = request.getParameter("cant");
 		
+			if(!isDouble(precio) || !isNumeric(cant)){
+				response.sendError(504, "El valor ingresado debe ser numerico.");
+			}else {
+				var precio_prod = Double.parseDouble(precio);
+				var cant_prod = Integer.parseInt(cant);
+				var sId = request.getParameter("id");
+				var id = Integer.parseInt(sId);
+				if(cant_prod < 0 || precio_prod < 0.0) {
+					response.sendError(404, "No puede ingresar numero negativos.");
+				}else{
+				//Proceso
+				var prod = dao.getById(id);
+				prod.setNombre(nombre);
+				prod.setPrecio(precio_prod);
+				prod.setCant(cant_prod);
+				
+				
+				dao.update(prod);
+				response.sendRedirect("ProductoController");
+				}
+			}
+			
+		}
 		
 	}
 
 	private void postInsert(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// Levantar datos
-		String nombre = request.getParameter("nombre");
-		String precio = request.getParameter("precio");
-		String cant = request.getParameter("cant");
-
-		double precio_prod = Double.parseDouble(precio);
-		int cant_prod = Integer.parseInt(cant);
-		// Procesar
-		var prod = new Producto(nombre, precio_prod, cant_prod);
-		try {
-			dao.insert(prod);
-			// Salida
-			response.sendRedirect("ProductoController");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		
-
+		if(request.getParameter("nombre").isEmpty() || request.getParameter("precio").isEmpty() || request.getParameter("cant").isEmpty()) {
+			response.sendError(404, "No puede quedar ningun campo vacio.");
+		}else {
+			//!(((Object)cant_prod).getClass().getSimpleName()=="Integer") || !(((Object)precio_prod).getClass().getSimpleName()=="Double")
+			String nombre = request.getParameter("nombre");
+			String precio = request.getParameter("precio");
+			String cant = request.getParameter("cant");
+			if(!isDouble(precio) || !isNumeric(cant)){
+				response.sendError(504, "El valor ingresado debe ser numerico.");
+			}else {
+				Double precio_prod = Double.parseDouble(precio);
+				Integer cant_prod = Integer.parseInt(cant);
+			
+				if(cant_prod < 0 || precio_prod < 0.0) {
+					response.sendError(404, "No puede ingresar numero negativos.");
+				}else{
+					// Procesar
+				var prod = new Producto(nombre, precio_prod, cant_prod);
+					try {
+						dao.insert(prod);
+						response.sendRedirect("ProductoController");
+					} catch (ClassNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}
 	}
 	
 	
-	
-	
+	private static boolean isNumeric(String cadena){
+		try {
+			Integer.parseInt(cadena);
+			return true;
+		} catch (NumberFormatException nfe){
+			return false;
+		}
+	}
+	private static boolean isDouble(String cadena){
+		try {
+			Double.parseDouble(cadena);
+			return true;
+		} catch (NumberFormatException nfe){
+			return false;
+		}
+	}
 
 }
