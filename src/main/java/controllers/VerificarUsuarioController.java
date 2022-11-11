@@ -69,22 +69,22 @@ public class VerificarUsuarioController extends HttpServlet {
 			//redirecionar dependiendo del tipo de usuario e iniciar Session;
 			//FALTA SESSION
 			
-			 var sesion = request.getSession();
+			 var session = request.getSession();
 			String tipo=usuario1.getRol();
 			switch (tipo) {
 				case "empleado" ->empleado(usuario1) ; //ir a la pagina dar de alta usuarios y productos
 				case "cliente" ->cliente(usuario1) ; //ir a la pagina de compra
 			}
 			
-		    sesion.setAttribute("id_usu", usuario1.getId());
+		    session.setAttribute("id", usuario1.getId());
 		    
-		    var id_usuario = sesion.getAttribute("id_usu");
+		    response.sendRedirect("Banco");
 			
 		}else {
 			//volver al index,con mensaje de error de usuario y clave!!!
 				request.setAttribute("Error", "Error de Usuario o Password");
 				RequestDispatcher rd;
-				rd=request.getRequestDispatcher("index.jsp");
+				rd=request.getRequestDispatcher("login.jsp");
 				rd.forward(request, response);		
 		}	
 	}

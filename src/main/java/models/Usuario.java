@@ -5,12 +5,16 @@ public class Usuario {
 	private String nombre;
 	private String clave;
 	private String rol;
-	
-	
-	public Usuario() {
+	private double saldo;
 		
-	}
 	public Usuario(int id, String nombre, String clave, String rol) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.clave = clave;
+		this.rol = rol;
+	}
+	public Usuario() {
 		super();
 		this.id = id;
 		this.nombre = nombre;
@@ -41,10 +45,16 @@ public class Usuario {
 	public void setRol(String rol) {
 		this.rol = rol;
 	}
+	public double getSaldo() {
+		return saldo;
+	}
+	public void setSaldo(double saldo) {
+		this.saldo = saldo;
+	}
 	@Override
 	public String toString() {
-		return "Usuario [id=" + id + ", nombre=" + nombre + ", clave=" + clave + ", rol=" + rol + "]";
+		return "Usuario [id=" + id + ", nombre=" + nombre + ", clave=" + clave + ", rol=" + rol + ", saldo=" + saldo
+				+ "]";
 	}
-	
 	
 }
