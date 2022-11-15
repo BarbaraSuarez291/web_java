@@ -66,7 +66,7 @@ if (respuesta==true){
 			<form action="Banco" method="post">
 
 		<input type="hidden" name="accion" value="banco">
-		<input type="hidden" name="id" value=${ id_usuario }> <!-- estos seria el id del usuario -->
+		<input type="hidden" name="id" value="${ id_usuario }"> <!-- estos seria el id del usuario -->
 		<p>
 			<input type="submit" class="btn btn-success" value="Banco">
 		</p>

@@ -89,13 +89,14 @@ public class ProductoController extends HttpServlet {
 			 mensaje = (String) errorSesion.getAttribute("mensaje");
 		}
 		HttpSession sesion = request.getSession(); 
-		var id_usuario = sesion.getAttribute("id_usu");
+		var id_usuario = sesion.getAttribute("id_user");
 		var rol = sesion.getAttribute("rol");
 		if(rol==null) {
 			response.sendRedirect("VerificarUsuarioController");
 		}
 		var listado=  dao.all();
 		System.out.println(listado);
+		sesion.setAttribute("id_usuario", id_usuario);
 		request.setAttribute("productos", listado);
 		request.setAttribute("rol", rol);
 		request.setAttribute("id_usuario", id_usuario);

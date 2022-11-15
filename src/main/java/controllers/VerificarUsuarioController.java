@@ -81,7 +81,7 @@ public class VerificarUsuarioController extends HttpServlet {
 		   
 		    var id_usuario = sesion.getAttribute("id_usu");
 		    System.out.println(id_usuario);
-		    request.setAttribute("id_user", id_usuario);
+		    sesion.setAttribute("id_user", id_usuario);
 		  		    
 		    //response.sendRedirect("Banco");
 		    response.sendRedirect("ProductoController");

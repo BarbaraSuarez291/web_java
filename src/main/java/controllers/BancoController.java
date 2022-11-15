@@ -7,12 +7,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.catalina.startup.ClassLoaderFactory.Repository;
 import org.apache.tomcat.util.http.fileupload.util.Streams;
 
 import com.mysql.cj.Session;
@@ -57,7 +59,6 @@ public class BancoController extends HttpServlet {
 		var lista = dao.lista_usuario(id_usu);
 		
 		var lista_clientes = Stream.of(lista).toArray();
-		
 		request.setAttribute("clientes", lista_clientes);
 		var rd = request.getRequestDispatcher("Banco.jsp");	
 		rd.forward(request, response);
@@ -79,7 +80,7 @@ public class BancoController extends HttpServlet {
 		}
 	}
 
-	private void postRemover(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void postRemover(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		
 		int id_usuario = (int) request.getSession().getAttribute("id");
 		
@@ -87,10 +88,29 @@ public class BancoController extends HttpServlet {
 		
 		double cant_remover = Double.parseDouble(recibido);
 		double saldo1 = 0;
+	
 		var saldo = dao.Traer_Saldo(id_usuario, saldo1);
 		
-		double resto = saldo - cant_remover;
+	    if(cant_remover > saldo) {
+			request.setAttribute("Error", "Saldo insuficiente para realizar esta operacion");
+			double saldo_reformado = 0;
+			dao.agregar(id_usuario, saldo_reformado);
+			RequestDispatcher rd;
+			rd=request.getRequestDispatcher("Banco.jsp");
+			rd.forward(request, response);
+		}
+	    
+	    if (cant_remover < 0) {
+			request.setAttribute("Error", "Ingrese un valor valido");
+			double saldo_reformado2 = 0;
+			dao.agregar(id_usuario, saldo_reformado2);
+			RequestDispatcher rd1;
+			rd1=request.getRequestDispatcher("Banco.jsp");
+			rd1.forward(request, response);
+		}
 		
+		double resto = saldo - cant_remover;
+	
 		dao.agregar(id_usuario, resto);
 
 		response.sendRedirect("Banco");
@@ -131,12 +151,30 @@ public class BancoController extends HttpServlet {
 		double cantidad = Double.parseDouble(recibo);
 
 		var saldo = dao.Traer_Saldo(id_usu, cantidad);
+	  
+		if( cantidad < 0 ){
+			request.setAttribute("Error", "No se pueden agregar saldos negativos");
+			RequestDispatcher rd;
+			rd=request.getRequestDispatcher("Banco.jsp");
+			rd.forward(request, response);
+		}
+		
 		//Suma el saldo actual con el que agregamos 
 		var total =  cantidad  +  saldo;
+		
+		if(total < 0) {
+			request.setAttribute("Error", "Error, saldo incorrecto");
+			//response.sendError(500, "No se pueden agregar saldos negativos");
+			RequestDispatcher rd;
+			rd=request.getRequestDispatcher("Banco.jsp");
+			rd.forward(request, response);
+		}else {
 		//y lo actualiza
 		dao.agregar(id_usu,total);
 		
 	    response.sendRedirect("Banco");
+	    
+		}
 	}
 
 }
