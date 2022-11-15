@@ -6,6 +6,8 @@ import java.util.List;
 
 
 import Conexion.ConexionFactory;
+import models.DetalleProducto;
+import models.ProdCarrito;
 import models.Producto;
 
 public class ProductoDAO {
@@ -19,9 +21,7 @@ public class ProductoDAO {
 			var query = "INSERT INTO productos";
 			query += " ( nombre, precio, cant)";
 			query += " values ( ?, ?, ?)";
-
 			var ps = con.prepareStatement(query);
-
 			ps.setString(1, prod.getNombre());
 			ps.setDouble(2, prod.getPrecio());
 			ps.setInt(3, prod.getCant());
@@ -73,7 +73,32 @@ public class ProductoDAO {
 		return list;
 	}
 	
-	
+	public int obtenerStockDeProd(int idProd) {
+		int stock = 0;
+		
+		try {
+			var con = ConexionFactory.getConexion();
+
+			var ps = con.prepareStatement(
+					"select cant from productos where id = ?");
+
+			ps.setInt(1, idProd);
+
+			var rs = ps.executeQuery();
+
+			if (rs.next()) {
+				 stock = rs.getInt("cant");
+			}
+
+			con.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		
+		return stock;
+	}
 	
 	public Producto getById(int id) {
 
@@ -160,6 +185,25 @@ public class ProductoDAO {
 		}
 
 	}
+
+	/**
+	 * Toma el arraylist productosCarrito y va actualizando el stock de los productos
+	 * @param ArrayList<ProdCarrito> productosCarrito
+	 *  **/
+	public void actualizarStock(ArrayList<ProdCarrito> productosCarrito) {
+		for(ProdCarrito p : productosCarrito) {
+			int stock = obtenerStockDeProd(p.getId());
+			int stockActualizado= stock - p.getCant();
+			Producto prod = new Producto(p.getId(), p.getNombre(), p.getPrecio(), stockActualizado);
+			update(prod);
+			
+			
+		}
+			
+	}
+
+
+
 	
 	
 	

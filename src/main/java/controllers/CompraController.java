@@ -1,12 +1,13 @@
 package controllers;
 
 import java.io.IOException;
-
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,11 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import daos.CompraDao;
+import daos.ProductoDAO;
+import daos.UsuarioDao;
 
 import models.DetalleProducto;
 import models.Factura;
 import models.ProdCarrito;
-
+ 
 
 /**
  * Servlet implementation class CompraController
@@ -28,12 +31,16 @@ import models.ProdCarrito;
 public class CompraController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     private CompraDao dao;
+    private UsuarioDao daoU;
+    private ProductoDAO daoP;
     /**
      * @see HttpServlet#HttpServlet()
      */
     public CompraController() {
         super();
         dao = new CompraDao();
+        daoU = new UsuarioDao();
+        daoP = new ProductoDAO();
     }
    
 
@@ -50,11 +57,21 @@ public class CompraController extends HttpServlet {
 		case "carrito" -> getCarrito(request, response);
 		case "compraExitosa" -> getCompraExitosa(request, response);
 		case "deleteItem" -> getEliminarProdCarrito(request, response);
+		case "ventas" -> getVentas(request, response);
 		default -> response.getWriter().print("Not found (GET)");
 		}
 	}
 	
 	
+	private void getVentas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		var facturas = dao.all();
+		request.setAttribute("facturas", facturas );
+		var rd = request.getRequestDispatcher("vistas/compra/ventas.jsp");
+		rd.forward(request, response);
+		
+	}
+
+
 	private void getEliminarProdCarrito(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		HttpSession miCarrito = request.getSession(); 
 		ArrayList<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
@@ -74,6 +91,9 @@ public class CompraController extends HttpServlet {
 
 	private void getCompraExitosa(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
+		var sesion = request.getSession(); 
+		var idUser_ = sesion.getAttribute("id_usu");
+		request.setAttribute("idUser", idUser_);
 		var rd = request.getRequestDispatcher("vistas/compra/compraExitosa.jsp");
 		rd.forward(request, response);
 	}
@@ -96,19 +116,24 @@ public class CompraController extends HttpServlet {
 	}
 
 	private void postVerFactura(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		
 		var s_Id = request.getParameter("id");
 		var id = Integer.parseInt(s_Id);
-		
-		Factura factura = dao.getFacturabyId(id);
-		var detalle = dao.getDetalleById(id);
-		request.setAttribute("factura", factura );
-		request.setAttribute("detalle", detalle );
-		var rd = request.getRequestDispatcher("vistas/compra/factura.jsp");
-		rd.forward(request, response);
-		
-		
-		
+		var idUser = Integer.parseInt(request.getParameter("idUser"));
+		try {
+			var usuario = daoU.buscarUsuario(idUser);
+			Factura factura = dao.getFacturabyId(id);
+			var detalle = dao.getDetalleById(id);
+			
+			request.setAttribute("usuario", usuario );
+			request.setAttribute("factura", factura );
+			request.setAttribute("detalle", detalle );
+			var rd = request.getRequestDispatcher("vistas/compra/factura.jsp");
+			rd.forward(request, response);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 
@@ -116,6 +141,7 @@ public class CompraController extends HttpServlet {
 		// TODO Auto-generated method stub
 		var s_Id = request.getParameter("id");
 		var id = Integer.parseInt(s_Id);
+		
 		var facturas = dao.comprasPorUsuario(id);
 		request.setAttribute("facturas", facturas );
 		var rd = request.getRequestDispatcher("vistas/compra/misCompras.jsp");
@@ -150,28 +176,38 @@ public class CompraController extends HttpServlet {
 	}
 
 	private void postFinCompra(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		var errorSession = request.getSession();
+		String mensaje = null;
 		HttpSession miCarrito = request.getSession(); 
 		ArrayList<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
 		if(productosCarrito!=null){
 			productosCarrito = (ArrayList<ProdCarrito>) miCarrito.getAttribute("productosCarrito");
-		}	if(!productosCarrito.isEmpty()) {
+		}		
+		boolean hayStock = comprobarStock(productosCarrito);
+		if(!hayStock) {
+			 mensaje = "No hay cantidades sufientes de stock. Vuelva a verificar";
+			 errorSession.setAttribute("mensaje", mensaje);
+			 response.sendRedirect("ProductoController");
+		} else {
+			
+	
+		
+		if(!productosCarrito.isEmpty()) {
 		//Datos factura
 		Double total = calcularTotal(miCarrito);
 		long miliseconds = System.currentTimeMillis();
 	    //Date fecha = new Date(miliseconds);
-		int idUser = 1; //hasta q este la parte de usuarios
+		var sesion = request.getSession(); 
+		int idUser = (int) sesion.getAttribute("id_usu");
 		
-		//instanciamos factura
+	
+		//instanciamos factura	
 		Factura fac = new Factura(idUser,  total);
 		
 		try {
 			dao.insertF(fac);
-			int id_factura = dao.obtenerIDFactura();
-			for(ProdCarrito prod : productosCarrito) {
-				DetalleProducto detalle = new DetalleProducto(id_factura,prod.getId(),prod.getCant(), prod.getPrecio());
-				dao.insertD(detalle);
-				
-			}
+			dao.insertDetalle(idUser, productosCarrito);
+			daoP.actualizarStock(productosCarrito);
 			response.sendRedirect("CompraController?accion=compraExitosa");
 			
 			
@@ -183,14 +219,29 @@ public class CompraController extends HttpServlet {
 		
 		
 		}else {
-			var mensaje= "El carrito se encuentra vacio!.";
-			request.setAttribute("mensaje", mensaje );
+			var mensaje1= "El carrito se encuentra vacio!.";
+			request.setAttribute("mensaje", mensaje1 );
+			request.setAttribute("tipoAlerta", "warning");
 			var rd = request.getRequestDispatcher("vistas/compra/notificacion.jsp");
 			rd.forward(request, response);
 			
 		}
-		
+		}
 	}
+/**
+ * Comprueba el stock de todos los productos del carrito
+ * @param ArrayList<ProdCarrito>
+ * @return boolean**/
+	private boolean comprobarStock(ArrayList<ProdCarrito> productosCarrito) {
+		boolean hayStock = true;
+		for(ProdCarrito prod : productosCarrito) {
+			if(daoP.obtenerStockDeProd(prod.getId())< prod.getCant()) {
+				hayStock= false;
+			}
+		}
+		return hayStock;
+	}
+
 
 	private Double calcularTotal(HttpSession miCarrito) {
 		ArrayList<ProdCarrito> productosCarrito;
@@ -202,14 +253,16 @@ public class CompraController extends HttpServlet {
 		    return total;
 	}
 
-	private void postAgregarCarrito(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void postAgregarCarrito(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// TODO Auto-generated method stub
+		var errorSession = request.getSession();
+		String mensaje = null;
 		HttpSession miCarrito = request.getSession(); 
 		List<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
 		if(productosCarrito!=null){
 			productosCarrito = (ArrayList<ProdCarrito>) miCarrito.getAttribute("productosCarrito");
-		}//Gson gson = new Gson();
-		//Producto prod = gson.fromJson(request.getParameter("prod"),Producto.class);
+		}
+		
 		int idProd = Integer.parseInt(request.getParameter("prod"));
 		int cantProd = Integer.parseInt(request.getParameter("cantidad"));
 		String nombre = request.getParameter("nombre");
@@ -218,20 +271,38 @@ public class CompraController extends HttpServlet {
 		productosCarrito = new ArrayList<>();
 		}
 		boolean existe = false;
-	
+		
 		for(ProdCarrito p : productosCarrito) {
 			if(p.getId()== idProd) {
-				p.setCant(p.getCant()+cantProd);
 				existe=true;
+				if (daoP.obtenerStockDeProd(idProd)<(p.getCant()+cantProd)) {
+					//response.sendError(405, "No hay cantidades sufiente de stock.");
+					//request.setAttribute("Error", "Error de Usuario o Password");
+					 mensaje = "No hay cantidades sufiente de stock.";
+					
+				}else {
+					p.setCant(p.getCant()+cantProd);
+					
+				}
+				
 			}
 		}
 		if(!existe) {
-			ProdCarrito pc = new ProdCarrito(idProd, cantProd, precio, nombre);
-			productosCarrito.add(pc);
+			
+			if (daoP.obtenerStockDeProd(idProd)<(cantProd)) {
+				//response.sendError(405, "No hay cantidades sufiente de stock.");
+				//request.setAttribute("Error", "Error de Usuario o Password");
+				 mensaje = "No hay cantidades sufiente de stock.";
+				
+			}else {
+				ProdCarrito pc = new ProdCarrito(idProd, cantProd, precio, nombre);
+				productosCarrito.add(pc);
+			}
 		}
-	
+		errorSession.setAttribute("mensaje", mensaje);
 		miCarrito.setAttribute("productosCarrito", productosCarrito);
 		response.sendRedirect("ProductoController");
+	
 		
 	}
 

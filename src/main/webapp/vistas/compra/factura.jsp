@@ -1,4 +1,4 @@
-<%@page import="java.util.ArrayList"%> 
+<%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
@@ -20,15 +20,13 @@
 	<br />
 
 
+	<h3><c:out value="Usuario : ${usuario.nombre }" /></h3>
 	
 	<table border="3">
 	<thead>
-			<th>id producto</th>
+			<th>id</th>
 			<th>Cantidad</th>
 			<th>Precio Unitario</th>
-			
-			
-		
 	</thead>
 			<c:forEach var="prod" items="${detalle}">
 				<tr>

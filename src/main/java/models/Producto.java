@@ -13,6 +13,13 @@ public class Producto {
 		this.precio = precio;
 		this.cant = cant;
 	}
+	public Producto(int id, String nombre, Double precio, int cant) {
+		super();
+		this.id = id;
+		this.nombre = nombre;
+		this.precio = precio;
+		this.cant = cant;
+	}
 	public Producto() {
 		super();
 	}

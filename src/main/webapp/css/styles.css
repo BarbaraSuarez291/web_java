@@ -1,0 +1,26 @@
+@charset "ISO-8859-1";
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&family=Inconsolata:wght@300&display=swap');
+* {
+	
+	font-family: 'Inconsolata', monospace;
+}
+
+.title{
+	
+	font-family: 'Comfortaa', cursive;
+	
+}
+.icono-carrito{
+	text-decoration:none; 
+	padding:10px; 
+	background-color:#FFD24C; 
+	font-size:20px;
+	margin-bottom:15px;
+	color:black;
+	border-radius:20px;
+}
+.icono-carrito:hover{
+	font-size: 23px;
+	color:black;
+	background-color:#92B4EC;
+}

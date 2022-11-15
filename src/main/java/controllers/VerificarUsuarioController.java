@@ -46,7 +46,7 @@ public class VerificarUsuarioController extends HttpServlet {
 	}
 
 	private void getLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		var fd = request.getRequestDispatcher("index.jsp");
+		var fd = request.getRequestDispatcher("login.jsp");
 		fd.forward(request, response);
 	}
 
@@ -55,7 +55,7 @@ public class VerificarUsuarioController extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		request.getRequestDispatcher("index.jsp").include(request, response);
+		request.getRequestDispatcher("login.jsp").include(request, response);
 		
 		String nombre=request.getParameter("usuario");
 		String password=request.getParameter("pass");
@@ -69,17 +69,22 @@ public class VerificarUsuarioController extends HttpServlet {
 			//redirecionar dependiendo del tipo de usuario e iniciar Session;
 			//FALTA SESSION
 			
-			 var session = request.getSession();
+			 var sesion = request.getSession();
 			String tipo=usuario1.getRol();
 			switch (tipo) {
 				case "empleado" ->empleado(usuario1) ; //ir a la pagina dar de alta usuarios y productos
 				case "cliente" ->cliente(usuario1) ; //ir a la pagina de compra
 			}
 			
-		    session.setAttribute("id", usuario1.getId());
-		    
-		    response.sendRedirect("Banco");
-			
+		    sesion.setAttribute("id_usu", usuario1.getId());
+		    sesion.setAttribute("rol", usuario1.getRol());
+		   
+		    var id_usuario = sesion.getAttribute("id_usu");
+		    System.out.println(id_usuario);
+		    request.setAttribute("id_user", id_usuario);
+		  		    
+		    //response.sendRedirect("Banco");
+		    response.sendRedirect("ProductoController");
 		}else {
 			//volver al index,con mensaje de error de usuario y clave!!!
 				request.setAttribute("Error", "Error de Usuario o Password");

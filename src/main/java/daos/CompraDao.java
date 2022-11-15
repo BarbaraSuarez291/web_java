@@ -7,6 +7,7 @@ import java.util.List;
 import Conexion.ConexionFactory;
 import models.DetalleProducto;
 import models.Factura;
+import models.ProdCarrito;
 
 public class CompraDao {
 
@@ -35,15 +36,15 @@ public class CompraDao {
 
 	}
 	
-	public int obtenerIDFactura() {
+	public int obtenerIDFactura(int id_user) {
 		//MODIFICAR
 		//TRAER LA ULTIMA FACTURA DEL USUARIO
-int id= 89;
+		Integer id =  null ;
 		try {
 			var con = ConexionFactory.getConexion();
 
 			var ps = con.prepareStatement(
-					"select id" + " from facturas " + " order by id desc limit 1");
+					"select id from facturas WHERE idUser="+ id_user +" order by id desc limit 1");
 			var rs = ps.executeQuery();
 
 			if (rs.next()) {
@@ -193,6 +194,54 @@ int id= 89;
 		}
 
 		return facturas;
+		
+	}
+	
+	
+	public ArrayList<Factura> all() {
+		ArrayList<Factura> facturas = new ArrayList<Factura>();
+		try {
+			var con = ConexionFactory.getConexion();
+
+			var ps = con.prepareStatement(
+					"select * from facturas order by id desc");
+
+			
+
+			var rs = ps.executeQuery();
+
+			while(rs.next()) {
+				var _id = rs.getInt("id");
+				var _idUser = rs.getInt("idUser");
+				var _total = rs.getDouble("total");
+				
+
+				Factura fac = new Factura();
+				fac.setId(_id);
+				fac.setIdUser(_idUser);
+				fac.setTotal(_total);
+				facturas.add(fac);
+
+			}
+
+			con.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return facturas;
+		
+	}
+	/** 
+	 * Insertamos en base de datos el detalle de los productos
+	 * @param idUser, ArrayList<ProdCarrito> productosCarrito**/
+	public void insertDetalle(int idUser, ArrayList<ProdCarrito> productosCarrito) {
+		int id_factura =obtenerIDFactura(idUser);
+		for(ProdCarrito prod : productosCarrito) {
+			DetalleProducto detalle = new DetalleProducto(id_factura,prod.getId(),prod.getCant(), prod.getPrecio());
+			insertD(detalle);
+		}
 		
 	}
 	

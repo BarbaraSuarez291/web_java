@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta charset="ISO-8859-1">
-<title>Mis compras</title>
+<title>Ventas</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 
 </head>
@@ -14,18 +14,20 @@
 <table border="3">
 	<thead>
 			<th>id</th>
+			<th>Nro de usuario</th>
 			<th>Total</th>
 			<th>ver</th>
 	</thead>
 			<c:forEach var="f" items="${facturas}">
 			<tr>
 				<td><c:out value="${f.getId() }" /></td>
+				<td><c:out value="${f.getIdUser() }" /></td>
 				<td><c:out value="${f.getTotal() }" /></td>
 			<td>
 				<form action="CompraController" method="post">
 				<input type="hidden" name="accion" value="ver">
 				<input type="hidden" value="${f.getId()}" name="id">
-				<input type="hidden" value="${f.getIdUser()}" name="idUser">
+					<input type="hidden" value="${f.getIdUser()}" name="idUser">
 				<p>
 				<input type="submit" value="Ver factura">
 				</p>

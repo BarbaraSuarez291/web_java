@@ -8,7 +8,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
+import javax.servlet.http.HttpSession;
 
 import daos.ProductoDAO;
 import models.Producto;
@@ -77,17 +77,29 @@ public class ProductoController extends HttpServlet {
 
 	private void getCrear(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		var rd = request.getRequestDispatcher("vistas/productos/crear.jsp");
 		rd.forward(request, response);
 	}
 
 	private void getIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		var errorSesion =request.getSession();
+		String mensaje= null;
+		if(errorSesion!=null){
+			 mensaje = (String) errorSesion.getAttribute("mensaje");
+		}
+		HttpSession sesion = request.getSession(); 
+		var id_usuario = sesion.getAttribute("id_usu");
+		var rol = sesion.getAttribute("rol");
+		if(rol==null) {
+			response.sendRedirect("VerificarUsuarioController");
+		}
 		var listado=  dao.all();
 		System.out.println(listado);
 		request.setAttribute("productos", listado);
+		request.setAttribute("rol", rol);
+		request.setAttribute("id_usuario", id_usuario);
+		request.setAttribute("mensaje", mensaje);
 		var rd = request.getRequestDispatcher("vistas/productos/index.jsp");
 		rd.forward(request, response);
 	}
@@ -103,8 +115,9 @@ public class ProductoController extends HttpServlet {
 		
 	}
 
-	private void postUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
+	private void postUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		var sId = request.getParameter("id");
+		var id = Integer.parseInt(sId);
 
 		if(request.getParameter("nombre").isEmpty() || request.getParameter("precio").isEmpty() || request.getParameter("cant").isEmpty()) {
 			response.sendError(404, "No puede quedar ningun campo vacio.");
@@ -114,16 +127,22 @@ public class ProductoController extends HttpServlet {
 			String cant = request.getParameter("cant");
 		
 			if(!isDouble(precio) || !isNumeric(cant)){
-				response.sendError(504, "El valor ingresado debe ser numerico.");
+				//response.sendError(504, "El valor ingresado debe ser numerico.");
+				String ruta = "ProductoController?accion=editar&id="+id;
+				generarAlerta("danger", "El valor ingresado debe ser numerico.",ruta ,  request, response);
+				
 			}else {
 				var precio_prod = Double.parseDouble(precio);
 				var cant_prod = Integer.parseInt(cant);
-				var sId = request.getParameter("id");
-				var id = Integer.parseInt(sId);
+				
 				if(cant_prod < 0 || precio_prod < 0.0) {
-					response.sendError(404, "No puede ingresar numero negativos.");
+					//response.sendError(404, "No puede ingresar numero negativos.");
+					String ruta = "ProductoController?accion=editar&id="+id;
+					generarAlerta("danger", "No puede ingresar numero negativos",ruta ,  request, response);
+					
+					
 				}else{
-				//Proceso
+				
 				var prod = dao.getById(id);
 				prod.setNombre(nombre);
 				prod.setPrecio(precio_prod);
@@ -131,7 +150,12 @@ public class ProductoController extends HttpServlet {
 				
 				
 				dao.update(prod);
-				response.sendRedirect("ProductoController");
+				
+				
+				//response.sendRedirect("ProductoController");
+				String ruta = "ProductoController";
+				generarAlerta("success", "Producto actualizado con exito!",ruta ,  request, response);
+				
 				}
 			}
 			
@@ -144,25 +168,32 @@ public class ProductoController extends HttpServlet {
 		
 		if(request.getParameter("nombre").isEmpty() || request.getParameter("precio").isEmpty() || request.getParameter("cant").isEmpty()) {
 			response.sendError(404, "No puede quedar ningun campo vacio.");
+			//generarAlerta("danger", "No puede quedar ningun campo vacio.", "vistas/productos/crear.jsp",  request, response);
+			
 		}else {
-			//!(((Object)cant_prod).getClass().getSimpleName()=="Integer") || !(((Object)precio_prod).getClass().getSimpleName()=="Double")
 			String nombre = request.getParameter("nombre");
 			String precio = request.getParameter("precio");
 			String cant = request.getParameter("cant");
 			if(!isDouble(precio) || !isNumeric(cant)){
 				response.sendError(504, "El valor ingresado debe ser numerico.");
+				//generarAlerta("danger", "El valor ingresado debe ser numerico.", "vistas/productos/crear.jsp",  request, response);
+				
 			}else {
 				Double precio_prod = Double.parseDouble(precio);
 				Integer cant_prod = Integer.parseInt(cant);
 			
 				if(cant_prod < 0 || precio_prod < 0.0) {
 					response.sendError(404, "No puede ingresar numero negativos.");
+					//generarAlerta("danger ", "No puede ingresar numero negativos.", "vistas/productos/crear.jsp",  request, response);
+					
 				}else{
 					// Procesar
 				var prod = new Producto(nombre, precio_prod, cant_prod);
 					try {
 						dao.insert(prod);
-						response.sendRedirect("ProductoController");
+						
+						generarAlerta("success", "Producto ingresado!", "ProductoController",  request, response);
+						//response.sendRedirect("ProductoController");
 					} catch (ClassNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -188,6 +219,14 @@ public class ProductoController extends HttpServlet {
 		} catch (NumberFormatException nfe){
 			return false;
 		}
+	}
+	
+	private static void generarAlerta (String tipoAlerta, String mensaje, String ruta, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		request.setAttribute("mensaje", mensaje);
+		request.setAttribute("ruta", ruta);
+		request.setAttribute("tipoAlerta", tipoAlerta);
+		var rd = request.getRequestDispatcher("vistas/compra/notificacion.jsp");
+		rd.forward(request, response);
 	}
 
 }
