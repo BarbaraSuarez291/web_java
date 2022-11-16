@@ -1,7 +1,9 @@
 <%@page import="models.ProdCarrito"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
+
 <%
+
 HttpSession miCarrito = request.getSession(); 
 List<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
 if(productosCarrito!=null){
@@ -40,7 +42,7 @@ HttpSession errorSession = request.getSession();
 <script type="text/javascript">
 function ConfirmDelete()
 {
-var respuesta = confirm("Estas seguro de eleiminar?");
+var respuesta = confirm("Estas seguro de eliminar?");
 if (respuesta==true){
 	return true;
 }else{
@@ -48,6 +50,15 @@ if (respuesta==true){
 }
 }
 
+function ConfirmLogout()
+{
+var respuesta = confirm("Estas seguro de cerrar sesion?");
+if (respuesta==true){
+	return true;
+}else{
+	return false;
+}
+}
 
 </script>
 <body>
@@ -83,23 +94,47 @@ if (respuesta==true){
 	</c:when>
     
 	</c:choose>
+	
+	<div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+  <button type="button" class="btn btn-dark"> ${nombre }</button>
+  <div class="btn-group" role="group">
+    <button id="btnGroupDrop1" type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+      <a class="dropdown-item" href="#">
+      <form action="Login" method="post">
+		<input type="hidden" name="accion" value="logout">
+		<p>
+			<input type="submit" class="btn btn-link dark" value="Cerrar sesion" onclick="return ConfirmLogout()">
+		</p>
+		</form>
+      </a>
+      
+    </div>
+  </div>
+</div>
+	
+	
+	
+	
+		
+	
+	
 	<h1 class="title container text-center" >Productos</h1>
 
 	<c:choose>
-    <c:when test="${mensaje!=null}">
-<div class="alert alert-dismissible alert-danger">
-  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  <strong>${ mensaje }</strong> 
-</div>
+    <c:when test="${mensaje!= null}">
+	<div class="alert alert-dismissible alert-${ tipoMensaje }">
+	  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+	  <strong>${ mensaje }</strong> 
+	</div>
     </c:when>
-    
 	</c:choose>
 
 
 
 	<c:choose>
     <c:when test="${rol.equals('empleado')}">
-	<a href="ProductoController?accion=crear">Agregar producto</a>
+	<a  class="btn btn-success" href="ProductoController?accion=crear">Agregar producto</a>
     </c:when>
 	</c:choose>
 
@@ -109,7 +144,7 @@ if (respuesta==true){
 	%> <a href="CompraController" class="icono-carrito"style=""> 
 	<img alt="imagen carrito" width="30px"  src="img/carrito-de-compras.png" />(<%=cantidadCarrito %>)</a>   
 	<%} %>
-<c:out value="${rol }" />
+	<h4 class="title"><c:out  value="Bienvenido/a ${nombre } (${rol })" /></h4>
 
 	<table border="1" style="margin-top:8px;" class="table table-hover table-dark">
 		<thead>
@@ -117,6 +152,7 @@ if (respuesta==true){
 			<th>Nombre</th>
 			<th>Precio</th>
 			<th>Cantidad</th>
+			<th></th>
 			<th></th>
 		</thead>
 		<tbody>
@@ -129,7 +165,7 @@ if (respuesta==true){
 					
 					<c:choose>
     <c:when test="${rol.equals('empleado')}">
-	<td> <a href = "<c:url value = "ProductoController?accion=editar&id=${producto.id }"/>">Editar</a>
+	<td> <a href = "<c:url value = "ProductoController?accion=editar&id=${producto.id }"/>"><img alt="imagen editar" width="30px"  src="img/editar.png" /></a>
     
     </td>
     <td>
@@ -138,7 +174,7 @@ if (respuesta==true){
 		<input type="hidden" name="accion" value="delete">
 				<input type="hidden" value="${producto.id }" name="id">
 		<p>
-			<input class="btn btn-danger" type="submit" value="Eliminar" onclick="return ConfirmDelete()">
+			<input  class="btn btn-danger" type="submit" value="Eliminar" onclick="return ConfirmDelete()">
 		</p>
 
 		</form>
@@ -180,6 +216,7 @@ if (respuesta==true){
     </c:when>
     
 	</c:choose>
+	<td></td>
 				</tr>
 			</c:forEach>
 		</tbody>

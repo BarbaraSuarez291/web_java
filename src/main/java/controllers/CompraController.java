@@ -116,7 +116,8 @@ public class CompraController extends HttpServlet {
 	}
 
 	private void postVerFactura(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		var sesion = request.getSession();
+		String rol = (String) sesion.getAttribute("rol");
 		var s_Id = request.getParameter("id");
 		var id = Integer.parseInt(s_Id);
 		var idUser = Integer.parseInt(request.getParameter("idUser"));
@@ -124,7 +125,7 @@ public class CompraController extends HttpServlet {
 			var usuario = daoU.buscarUsuario(idUser);
 			Factura factura = dao.getFacturabyId(id);
 			var detalle = dao.getDetalleById(id);
-			
+			request.setAttribute("rol", rol);
 			request.setAttribute("usuario", usuario );
 			request.setAttribute("factura", factura );
 			request.setAttribute("detalle", detalle );
