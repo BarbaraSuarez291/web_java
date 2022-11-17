@@ -12,7 +12,9 @@ import models.ProdCarrito;
 public class CompraDao {
 
 	
-	
+	/**
+	 * Inserta una nueva factura en base de datos.
+	 * @param (Factura factura)**/
 	public void insertF(Factura factura) throws ClassNotFoundException {
 		try {
 			var con = ConexionFactory.getConexion();
@@ -35,10 +37,11 @@ public class CompraDao {
 		}
 
 	}
-	
+	/** Trae el id de la ultima factura del usuario segun el id que 
+	 * se le pase por parametro. 
+	 * @param (int id_user)
+	 * @return int id (id de factura)**/
 	public int obtenerIDFactura(int id_user) {
-		//MODIFICAR
-		//TRAER LA ULTIMA FACTURA DEL USUARIO
 		Integer id =  null ;
 		try {
 			var con = ConexionFactory.getConexion();
@@ -62,7 +65,10 @@ public class CompraDao {
 		
 		
 	}
-
+	/** Inserta el detalle de cada producto. 
+	 *  Cada detalle de producto contiene el id de la factura a la 
+	 *  cual pertence.
+	 *  @param (DetalleProducto detalle)  **/ 
 	public void insertD(DetalleProducto detalle) {
 		try {
 			var con = ConexionFactory.getConexion();
@@ -89,7 +95,10 @@ public class CompraDao {
 
 		
 	}
-
+	/** Se le pasa el id de la factura y retorna 
+	 * un ArrayList con los detalles del producto que coicidan.
+	 * @param (int id_factura) 
+	 * @return ArrayList<DetalleProducto>**/ 
 	public ArrayList<DetalleProducto> getDetalleById(int id_factura) {
 		ArrayList<DetalleProducto> listaProd = new ArrayList<DetalleProducto>();
 		try {
@@ -125,7 +134,9 @@ public class CompraDao {
 
 		return listaProd;
 	}
-
+	/** Trae una factura segun el id pasado por parametro.
+	 * @param (int id_factura)
+	 * @return Factura **/
 	public Factura getFacturabyId(int id_factura) {
 		Factura fac = null;
 		try {
@@ -160,7 +171,9 @@ public class CompraDao {
 
 		return fac;
 	}
-
+	/** Trae una lista(ArrayList < Factura > ) de todas las facturas perteneciente a un usuario.
+	 * @param (int id)
+	 * @return ArrayList< Factura > **/
 	public ArrayList<Factura> comprasPorUsuario(int id) {
 		ArrayList<Factura> facturas = new ArrayList<Factura>();
 		try {
@@ -197,7 +210,8 @@ public class CompraDao {
 		
 	}
 	
-	
+	/** Retorna una lista de todas las facturas en orden descente.
+	 * @return  ArrayList< Factura >**/
 	public ArrayList<Factura> all() {
 		ArrayList<Factura> facturas = new ArrayList<Factura>();
 		try {
@@ -235,7 +249,7 @@ public class CompraDao {
 	}
 	/** 
 	 * Insertamos en base de datos el detalle de los productos
-	 * @param idUser, ArrayList<ProdCarrito> productosCarrito**/
+	 * @param idUser, ArrayList< ProdCarrito > productosCarrito**/
 	public void insertDetalle(int idUser, ArrayList<ProdCarrito> productosCarrito) {
 		int id_factura =obtenerIDFactura(idUser);
 		for(ProdCarrito prod : productosCarrito) {

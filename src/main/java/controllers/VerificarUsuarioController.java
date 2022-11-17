@@ -55,8 +55,9 @@ public class VerificarUsuarioController extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		var accion = request.getParameter("accion");
-
+		//var accion = request.getParameter("accion");
+		 var accion = Optional.ofNullable(request.getParameter("accion")).orElse("login");
+         
 		switch (accion) {
 		case "logout" -> postLogout(request, response);
 		case "login" -> postLogin(request, response);

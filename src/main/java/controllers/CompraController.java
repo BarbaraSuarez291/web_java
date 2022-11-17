@@ -48,7 +48,6 @@ public class CompraController extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
 		var optAccion = Optional.ofNullable(request.getParameter("accion"));
 
 		var accion = optAccion.orElse("carrito");
@@ -256,7 +255,7 @@ public class CompraController extends HttpServlet {
 
 	private void postAgregarCarrito(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		// TODO Auto-generated method stub
-		var errorSession = request.getSession();
+		var errorSessionCarrito = request.getSession();
 		String mensaje = null;
 		HttpSession miCarrito = request.getSession(); 
 		List<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
@@ -300,7 +299,8 @@ public class CompraController extends HttpServlet {
 				productosCarrito.add(pc);
 			}
 		}
-		errorSession.setAttribute("mensaje", mensaje);
+		errorSessionCarrito.setAttribute("mensajeC", mensaje);
+		errorSessionCarrito.setAttribute("tipoMensajeC", "danger");
 		miCarrito.setAttribute("productosCarrito", productosCarrito);
 		response.sendRedirect("ProductoController");
 	

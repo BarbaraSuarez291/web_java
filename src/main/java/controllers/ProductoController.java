@@ -61,13 +61,14 @@ public class ProductoController extends HttpServlet {
 
 	private void getEditar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		var errorSession = request.getSession();
-		//var tipoM = request.getSession();
+		
 	
 		String mensaje = null;
 		String tipo = null;
 		if(errorSession!= null) {
 			mensaje = (String) errorSession.getAttribute("mensaje");
 			tipo = (String) errorSession.getAttribute("tipoMensaje");
+			errorSession.setAttribute("mensaje", null);
 		}
 		
 		var sId = request.getParameter("id");
@@ -80,7 +81,8 @@ public class ProductoController extends HttpServlet {
 		request.setAttribute("producto", prod);
 		request.setAttribute("mensaje", mensaje);
 		request.setAttribute("tipoMensaje", tipo);
-				
+		errorSession.setAttribute("mensaje", null);
+
 		var rd = request.getRequestDispatcher("vistas/productos/editar.jsp");
 		rd.forward(request, response);
 	}
@@ -93,15 +95,18 @@ public class ProductoController extends HttpServlet {
 
 	private void getIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		var errorSessionC =request.getSession();
-		//errorSessionC.setAttribute("mensaje", null);
-		//errorSessionC.setAttribute("tipo", null);
+		var errorSession = request.getSession();
+		errorSession.setAttribute("mensaje", null);
+		var errorSessionCarrito =request.getSession();
+		
 		String mensaje = null;
 		String tipo = null;
-		if(errorSessionC!=null){
-			 mensaje = (String) errorSessionC.getAttribute("mensaje");
-			 tipo = (String) errorSessionC.getAttribute("tipoMensaje");
+		if(errorSessionCarrito.getAttribute("mensajeC")!=null){
+			 mensaje = (String) errorSessionCarrito.getAttribute("mensajeC");
+			 tipo = (String) errorSessionCarrito.getAttribute("tipoMensajeC");
+			 errorSessionCarrito.setAttribute("mensajeC", null);
 		}
+	
 		HttpSession sesion = request.getSession(); 
 		var id_usuario = sesion.getAttribute("id_usu");
 		var nombre_usu = sesion.getAttribute("nombre");
@@ -120,6 +125,9 @@ public class ProductoController extends HttpServlet {
 		request.setAttribute("nombre", nombre);
 		request.setAttribute("mensaje", mensaje);
 		request.setAttribute("tipoMensaje", tipo);
+		
+		errorSessionCarrito.setAttribute("mensajeC", null);
+		
 		var rd = request.getRequestDispatcher("vistas/productos/index.jsp");
 		rd.forward(request, response);
 	}
