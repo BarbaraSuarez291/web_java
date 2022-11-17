@@ -42,7 +42,7 @@ public class CompraDao {
 	 * @param (int id_user)
 	 * @return int id (id de factura)**/
 	public int obtenerIDFactura(int id_user) {
-		Integer id =  null ;
+		Integer id =  0 ;
 		try {
 			var con = ConexionFactory.getConexion();
 

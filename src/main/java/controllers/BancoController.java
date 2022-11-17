@@ -43,9 +43,24 @@ public class BancoController extends HttpServlet {
         switch (accion) {
 		case "banco" -> getBanco(request,response);
 		case "transferir" -> getTansferir(request,response);
+		case "reinicio" -> getVolver(request, response);
 		default ->
 		throw new IllegalArgumentException("Unexpected value: " + accion);
 		}
+	}
+
+	private void getVolver(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		int id_usu = (int) request.getSession().getAttribute("id_usuario");
+		String  nombre = (String) request.getSession().getAttribute("nombre");
+		request.setAttribute("nombre", nombre);
+		var lista = dao.lista_usuario(id_usu);
+		
+		var lista_clientes = Stream.of(lista).toArray();
+		request.setAttribute("clientes", lista_clientes);
+		
+		var rd = request.getRequestDispatcher("Banco.jsp");
+		rd.forward(request, response);
 	}
 
 	private void getTansferir(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -97,8 +112,9 @@ public class BancoController extends HttpServlet {
 			double saldo_reformado = 0;
 			dao.agregar(id_usuario, saldo_reformado);
 			RequestDispatcher rd;
-			rd=request.getRequestDispatcher("Banco.jsp");
+			rd=request.getRequestDispatcher("errores.jsp");
 			rd.forward(request, response);
+			return;
 		}
 	    
 	    if (cant_remover < 0) {
@@ -106,8 +122,9 @@ public class BancoController extends HttpServlet {
 			double saldo_reformado2 = 0;
 			dao.agregar(id_usuario, saldo_reformado2);
 			RequestDispatcher rd1;
-			rd1=request.getRequestDispatcher("Banco.jsp");
+			rd1=request.getRequestDispatcher("errores.jsp");
 			rd1.forward(request, response);
+			return;
 		}
 		
 		double resto = saldo - cant_remover;
@@ -117,7 +134,7 @@ public class BancoController extends HttpServlet {
 		response.sendRedirect("Banco");
 	}
 
-	private void postTransferencia(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	private void postTransferencia(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		
 		String  nombre_destino = request.getParameter("nombre_destinatario");
 		var cantidad = request.getParameter("cantidad");
@@ -130,6 +147,22 @@ public class BancoController extends HttpServlet {
 		double saldo = 0;
 		var saldo1 = dao.Traer_Saldo(id_emisor, saldo);
 		
+		if (cantidad1 > saldo1) {
+			request.setAttribute("Error", "Saldo insuficiente");
+			RequestDispatcher rd1;
+			rd1=request.getRequestDispatcher("errores.jsp");
+			rd1.forward(request, response);
+			return;
+		}
+		
+		if( cantidad1 < 0 ){
+			request.setAttribute("Error", "No se pueden agregar saldos negativos");
+			RequestDispatcher rd;
+			rd=request.getRequestDispatcher("errores.jsp");
+			rd.forward(request, response);
+			return;
+		}
+	
 		var emisor_saldo = saldo1 - cantidad1;
 		
 		dao.agregar(id_emisor,emisor_saldo);
@@ -156,8 +189,9 @@ public class BancoController extends HttpServlet {
 		if( cantidad < 0 ){
 			request.setAttribute("Error", "No se pueden agregar saldos negativos");
 			RequestDispatcher rd;
-			rd=request.getRequestDispatcher("Banco.jsp");
+			rd=request.getRequestDispatcher("errores.jsp");
 			rd.forward(request, response);
+			return;
 		}
 		
 		//Suma el saldo actual con el que agregamos 
@@ -165,10 +199,10 @@ public class BancoController extends HttpServlet {
 		
 		if(total < 0) {
 			request.setAttribute("Error", "Error, saldo incorrecto");
-			//response.sendError(500, "No se pueden agregar saldos negativos");
 			RequestDispatcher rd;
-			rd=request.getRequestDispatcher("Banco.jsp");
+			rd=request.getRequestDispatcher("errores.jsp");
 			rd.forward(request, response);
+			return;
 		}else {
 		//y lo actualiza
 		dao.agregar(id_usu,total);
