@@ -1,6 +1,7 @@
 package controllers;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -36,6 +37,10 @@ public class RegistrarUsuarioController extends HttpServlet {
 	}
 
 	/**
+	 * Valida los datos ingresados por el formulario de registro. En caso de pasar las validaciones
+	 * ingresa un usuario nuevo y lo redirecciona al Login.
+	 * El saldo unicial de cada usuario nuevo es 0.
+	 * 
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -43,15 +48,34 @@ public class RegistrarUsuarioController extends HttpServlet {
 		
 		String nombre=request.getParameter("nombre");
 		String password=request.getParameter("pass");
-		
-		System.out.println("Nombre:"+nombre+"--Password:"+password);
-		usuario1.setNombre(nombre);
-		usuario1.setClave(password);
-		System.out.println(usuarioDAO.agregarCliente(usuario1));
-		RequestDispatcher rd;
-		rd=request.getRequestDispatcher("index.jsp");
-		rd.forward(request, response);	
-				 
+		try {
+			if(!usuarioDAO.existeUsuario(nombre)) {
+				if(usuarioDAO.validacionRegistro(nombre, password)== null) {
+					System.out.println("Nombre:"+nombre+"--Password:"+password);
+					usuario1.setNombre(nombre);
+					usuario1.setClave(password);
+					System.out.println(usuarioDAO.agregarCliente(usuario1));
+					RequestDispatcher rd;
+					rd=request.getRequestDispatcher("login.jsp");
+					rd.forward(request, response);	
+				}else {
+				request.setAttribute("Error", usuarioDAO.validacionRegistro(nombre, password));
+				RequestDispatcher rd;
+				rd=request.getRequestDispatcher("RegistroUsuario.jsp");
+				rd.forward(request, response);	
+				}
+			}else {
+				request.setAttribute("Error", "El nombre de usuario ya existe en base de datos.");
+				RequestDispatcher rd;
+				rd=request.getRequestDispatcher("RegistroUsuario.jsp");
+				rd.forward(request, response);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 
 	}
+	
 
 }

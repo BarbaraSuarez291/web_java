@@ -7,7 +7,9 @@ package daos;
 	import java.util.ArrayList;
 	import java.util.List;
 
-	//import com.mysql.jdbc.PreparedStatement;
+import javax.servlet.RequestDispatcher;
+
+//import com.mysql.jdbc.PreparedStatement;
 	import models.Usuario;
 	import Conexion.ConexionFactory;
 
@@ -18,7 +20,11 @@ package daos;
 		    
 		    
 		    
-	//************************VALIDAR USUARIO*****************************************	    
+	//************************VALIDAR USUARIO*****************************************	
+		   /** Valida los datos del usuario(usuario y password) para ingresar al sistema.
+		    * En caso de no encontrarlo retorna un error
+		    * @param (String nombre, String clave)
+		    * @return Usuario  **/
 		    public Usuario validarUsuario(String nombre, String clave) throws SQLException  {
 		        Usuario usuario = new Usuario();
 		        String consulta = "SELECT * FROM usuario WHERE nombre = ? AND clave = ?";
@@ -63,6 +69,8 @@ package daos;
 		       
 		    }
 	//***********************************LISTAR TODOS LOS USUARIOS*******************
+		    /** Lista todos los usuarios, retorna una lista de usuarios
+		     * @return  List<Usuario>**/ 
 		    public List<Usuario> ListarUsuarios() {
 		    	List<Usuario> lista = new ArrayList<Usuario>();
 		    	String consulta = "SELECT * FROM usuario";
@@ -89,8 +97,12 @@ package daos;
 
 		    }
 	//****************************AGREGAR USUARIO TIPO CLIENTE****************************************************	    
+		    /**
+			    * Agrega un nuevo usuario de tipo cliente.
+			    * @param  (Usuario usuario)
+			    * @return String **/
 		    public String agregarCliente(Usuario usuario)  {
-		    String sentencia = "INSERT INTO usuario (nombre,clave,rol) VALUES (?,?,?)";
+		    String sentencia = "INSERT INTO usuario (nombre,clave,rol,Saldo) VALUES (?,?,?,?)";
 		    usuario.setRol("cliente");
 		    try {
 		    	var con = ConexionFactory.getConexion();
@@ -99,7 +111,7 @@ package daos;
 	            ps.setString(1, usuario.getNombre());
 	            ps.setString(2, usuario.getClave());
 	            ps.setString(3, usuario.getRol());
-	            
+	            ps.setDouble(4, 0);
 	            ps.executeUpdate();
 	        } catch (SQLException ex) {
 	            System.out.println(ex.getMessage()+" Error de SQL!!!");
@@ -110,6 +122,10 @@ package daos;
 	    }
 		    
 	//*************************BUSCAR USUARIO BY ID*************************************************************	    
+		   /**
+		    * Busca usuario por id
+		    * @param  (int id) 
+		    * @return Usuario usuario **/
 		    public Usuario buscarUsuario(int id) throws SQLException{
 		        Usuario usuario = new Usuario();
 		        String consulta = "SELECT * FROM usuario WHERE Id = ?";
@@ -133,6 +149,9 @@ package daos;
 		    }
 		    
 	//*************************BORRAR USUARIO BY ID**************************************************************	    
+		    /**Elimina usuario por id
+		     * @param (int id)
+		     *  **/
 		    public void eliminarUsuario(int id) throws SQLException {
 
 		        String sql = "DELETE FROM usuario WHERE id=" + id;
@@ -148,6 +167,8 @@ package daos;
 		    }
 		    
 	//*********************************ACTUALIZAR USUARIO************
+		    /** Se le pasa un usuario y lo actualiza en base de datos.
+		     * @param (Usuario usuario) **/
 		    public void actualizarUsuario(Usuario usuario) {
 		    	
 		        String sentencia = "UPDATE usuario set nombre=?,clave=?,rol=? WHERE id=?";
@@ -166,6 +187,49 @@ package daos;
 		        }
 		        
 		    }
+		    
+		    
+		  //*************************BUSCAR USUARIO BY ID*************************************************************	    
+			   /**
+			    * Verifica si el usuario ya exista en base de datos.
+			    * Si existe un usuario con ese nombre en base de datos devuelve true
+			    * @param  (String nombre) 
+			    * @return Boolean **/
+			    public Boolean existeUsuario(String nombre) throws SQLException{
+			        Boolean existeUsuario = false;
+			        String consulta = "SELECT * FROM usuario WHERE nombre = ?";
+			        
+			        var con = ConexionFactory.getConexion();
+			        try {
+			            ps = (PreparedStatement) con.prepareStatement(consulta);
+			            ps.setString(1, nombre);
+			            rs = ps.executeQuery();
+			            while(rs.next()){
+			            	existeUsuario = true;
+			                
+			              }
+			        } catch (Exception e) {
+			        }
+			        
+			        return existeUsuario;
+			    }
+			/** Valida los datos al registrar, si retorna null se puede avanzar en
+			 * el registro de usuario. De lo contrario retorna el mensaje de error.
+			 * @param  (String nombre, String password)
+			 * @return String **/
+			public String validacionRegistro(String nombre, String password) {
+				
+				if(nombre.isEmpty() || password.isEmpty()) {
+					return "Todos los campos son obligatorios";
+				}if (nombre.length()<3) {
+					return "El nombre de usuario debe ser mas largo";
+				}if (password.length()<6) {
+					return "La contraseña debe tener al menos 6 caracteres.";
+				} else {
+					return null;
+				}
+				
+			}
 		    
 		    
 	}

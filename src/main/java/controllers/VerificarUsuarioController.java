@@ -1,6 +1,5 @@
 package controllers;
 
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -56,9 +55,8 @@ public class VerificarUsuarioController extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//var accion = request.getParameter("accion");
-		   var accion = Optional.ofNullable(request.getParameter("accion")).orElse("login");
-	        
+		var accion = request.getParameter("accion");
+
 		switch (accion) {
 		case "logout" -> postLogout(request, response);
 		case "login" -> postLogin(request, response);
@@ -69,6 +67,11 @@ public class VerificarUsuarioController extends HttpServlet {
 		
 		
 	}
+	/** Toma los valores que llegan del formulario de ingreso, valida el usuario
+	 * y en caso de que esten bien los datos, el usario ingresa al sistema.
+	 * Se crea la sesion del usuario (nombre, rol e id).
+	 * @param  (HttpServletRequest request, HttpServletResponse response)
+	 ***/
 	private void postLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 request.getRequestDispatcher("login.jsp").include(request, response);
 		
@@ -93,12 +96,15 @@ request.getRequestDispatcher("login.jsp").include(request, response);
 		    sesion.setAttribute("rol", usuario1.getRol());
 		    sesion.setAttribute("nombre", usuario1.getNombre());
 
-		    //request.setAttribute("id_user", id_usuario);
+		   
+		    var id_usuario = sesion.getAttribute("id_usu");
+		    System.out.println(id_usuario);
+		    request.setAttribute("id_user", id_usuario);
 		    response.sendRedirect("ProductoController");
 		   
 			
 		}else {
-			//volver al index,con mensaje de error de usuario y clave!!!
+			
 				request.setAttribute("Error", "Error de Usuario o Password");
 				RequestDispatcher rd;
 				rd=request.getRequestDispatcher("login.jsp");
@@ -106,6 +112,9 @@ request.getRequestDispatcher("login.jsp").include(request, response);
 		}	
 	}
 
+	/** Cierra la session del usuario y la del carrito si existiese
+	 * Redirecciona nuevamente al Login.
+	 * @param (HttpServletRequest request, HttpServletResponse response) **/
 	private void postLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		var miCarrito = request.getSession();
 		var sesion = request.getSession();
