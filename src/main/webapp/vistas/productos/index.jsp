@@ -74,15 +74,15 @@ if (respuesta==true){
 		</p>
 
 		</form>
-			<form action="Banco" method="post">
-
+	    
+	    <form action="Banco" method="post">
 		<input type="hidden" name="accion" value="banco">
-		<input type="hidden" name="id" value="${ id_usuario }"> <!-- estos seria el id del usuario -->
 		<p>
 			<input type="submit" class="btn btn-success" value="Banco">
 		</p>
 
 		</form>
+		
 	</c:when>
 	<c:when test="${rol.equals('empleado')}">
 	<form action="CompraController" method="get">

@@ -54,8 +54,9 @@ public class BancoController extends HttpServlet {
 	}
 
 	private void getBanco(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		int id_usu = (int) request.getSession().getAttribute("id");
+		int id_usu = (int) request.getSession().getAttribute("id_usuario");
 		String  nombre = (String) request.getSession().getAttribute("nombre");
+		request.setAttribute("nombre", nombre);
 		var lista = dao.lista_usuario(id_usu);
 		
 		var lista_clientes = Stream.of(lista).toArray();
@@ -82,7 +83,7 @@ public class BancoController extends HttpServlet {
 
 	private void postRemover(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		
-		int id_usuario = (int) request.getSession().getAttribute("id");
+		int id_usuario = (int) request.getSession().getAttribute("id_usuario");
 		
 		var recibido = request.getParameter("remover");
 		
@@ -121,7 +122,7 @@ public class BancoController extends HttpServlet {
 		String  nombre_destino = request.getParameter("nombre_destinatario");
 		var cantidad = request.getParameter("cantidad");
 		
-		int id_emisor = (int) request.getSession().getAttribute("id");
+		int id_emisor = (int) request.getSession().getAttribute("id_usuario");
 		
         var recibo = request.getParameter("cantidad");
 		
@@ -144,7 +145,7 @@ public class BancoController extends HttpServlet {
 
 	private void postAgregar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		//Levanta los datos
-		int id_usu = (int) request.getSession().getAttribute("id");
+		int id_usu = (int) request.getSession().getAttribute("id_usuario");
 		
 		var recibo = request.getParameter("cantidad");
 		

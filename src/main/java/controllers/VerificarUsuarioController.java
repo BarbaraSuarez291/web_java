@@ -93,10 +93,7 @@ request.getRequestDispatcher("login.jsp").include(request, response);
 		    sesion.setAttribute("rol", usuario1.getRol());
 		    sesion.setAttribute("nombre", usuario1.getNombre());
 
-		   
-		    var id_usuario = sesion.getAttribute("id_usu");
-		    System.out.println(id_usuario);
-		    request.setAttribute("id_user", id_usuario);
+		    //request.setAttribute("id_user", id_usuario);
 		    response.sendRedirect("ProductoController");
 		   
 			

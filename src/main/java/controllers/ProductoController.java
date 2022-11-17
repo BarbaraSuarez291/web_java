@@ -104,6 +104,7 @@ public class ProductoController extends HttpServlet {
 		}
 		HttpSession sesion = request.getSession(); 
 		var id_usuario = sesion.getAttribute("id_usu");
+		var nombre_usu = sesion.getAttribute("nombre");
 		var rol = sesion.getAttribute("rol");
 		var nombre = sesion.getAttribute("nombre");
 		if(rol==null) {
@@ -112,6 +113,7 @@ public class ProductoController extends HttpServlet {
 		var listado=  dao.all();
 		System.out.println(listado);
 		sesion.setAttribute("id_usuario", id_usuario);
+		sesion.setAttribute("nombre", nombre_usu);
 		request.setAttribute("productos", listado);
 		request.setAttribute("rol", rol);
 		request.setAttribute("id_usuario", id_usuario);
