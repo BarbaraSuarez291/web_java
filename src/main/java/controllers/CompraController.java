@@ -43,6 +43,7 @@ public class CompraController extends HttpServlet {
         dao = new CompraDao();
         daoU = new UsuarioDao();
         daoP = new ProductoDAO();
+        dao_banco = new BancoDaoBD();
     }
    
 
