@@ -79,6 +79,7 @@
 			<form action="CompraController" method="post">
 			<input type="hidden" name="accion" value="finCompra">
 				<input type="hidden" value="${prod}" name="id">
+				<input type="hidden" value="<%=total %>" name="total_compra">
 			<p>
 			<input class="btn btn-success" type="submit" value="Finalizar compra">
 			</p>
