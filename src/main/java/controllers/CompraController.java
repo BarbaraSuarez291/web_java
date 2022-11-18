@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import daos.BancoDaoBD;
 import daos.CompraDao;
 import daos.ProductoDAO;
 import daos.UsuarioDao;
@@ -33,6 +34,7 @@ public class CompraController extends HttpServlet {
     private CompraDao dao;
     private UsuarioDao daoU;
     private ProductoDAO daoP;
+    private BancoDaoBD dao_banco;
     /**
      * @see HttpServlet#HttpServlet()
      */
@@ -176,6 +178,22 @@ public class CompraController extends HttpServlet {
 	}
 
 	private void postFinCompra(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+var total_de_compra = request.getParameter("total_compra");
+		
+		int id_usuario_compra = (int) request.getSession().getAttribute("id_usuario");
+	
+		double saldo2 = 0;
+		double saldo_usuario = dao_banco.Traer_Saldo(id_usuario_compra, saldo2);
+
+		if(  Double.parseDouble(total_de_compra) > saldo_usuario ){
+			request.setAttribute("Error", "No tiene saldo suficiente en tu cuenta para realizar esta compra");
+			RequestDispatcher rd;
+			rd=request.getRequestDispatcher("errores.jsp");
+			rd.forward(request, response);
+			return;
+		}
+	    
+		
 		var errorSession = request.getSession();
 		String mensaje = null;
 		HttpSession miCarrito = request.getSession(); 
@@ -226,6 +244,11 @@ public class CompraController extends HttpServlet {
 			rd.forward(request, response);
 			
 		}
+		
+		double resultado = saldo_usuario - Double.parseDouble(total_de_compra);
+		
+		dao_banco.agregar(id_usuario_compra, resultado);
+		
 		}
 	}
 /**

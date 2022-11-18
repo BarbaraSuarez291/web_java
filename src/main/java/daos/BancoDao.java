@@ -1,7 +1,10 @@
 package daos;
 
 import models.Usuario;
-
+/** 
+ * Esta interfaz gestiona las herramientas que utiliza el DAO.
+ * @see BancoDao
+ * */
 public interface BancoDao {
   
 	public Usuario lista_usuario(int id);

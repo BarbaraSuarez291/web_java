@@ -28,6 +28,11 @@
 </script>
 <div class="container" align="center">
    <div class="abs-center">
+   <div align="left">
+   <a href="ProductoController?accion=index">
+   <img src="img/home.png" width="50px"/>
+   </a>
+   </div>
    <h2>Cuenta bancaria</h2>
    <c:forEach var="cliente" items="${clientes}">
  <h5> Bienvenido <c:out value="${cliente.nombre}" /> </h5>
@@ -67,9 +72,6 @@
 		</tbody>
 
 	</table>
-	<div align="center">
-		 <p class="alert alert-primary">${Error}</p>
-	</div>
   </div>
  </div>
  

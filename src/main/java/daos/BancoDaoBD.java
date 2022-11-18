@@ -7,8 +7,22 @@ import java.util.List;
 import Conexion.ConexionFactory;
 import models.Usuario;
 import daos.BancoDao;
+/**
+ * Este dao cuenta con la funcionalidades para realizar las operaciones bancarias.<br>
+ * {@link BancoDaoBD listar_usuarios(int id)}<br>
+ * {@link BancoDaoBD agregar(int id, double cantidad)}<br>
+ * {@link BancoDaoBD Traer_Saldo(int id,double saldo)}<br>
+ * {@link BancoDaoBD Tranferencia(String nombre, double cantidad)}<br>
+ * {@link BancoDaoBD traer_saldo_pornombre(String nombre, double saldo)}<br>
+ * @see {@link BancoDaoBD}
+ * */
 public class BancoDaoBD implements BancoDao{
- 
+    
+	/**
+	 * Recibe una ID y retorna la informacion del usuario en un objeto.
+	 * @return  usuario
+	 * @see {@link BancoDaoBD listar_usuarios(int id)}
+	 */
 	@Override
 	public Usuario lista_usuario(int id) {
 		Usuario usu = null;
@@ -45,6 +59,11 @@ public class BancoDaoBD implements BancoDao{
 		return usu;
          
 	}
+	/**
+	 * Recibe una ID del usuario, la cantidad y no retorna nada. 
+	 * Solo actualiza el saldo del usuario.
+	 * @see {@link BancoDaoBD agregar(int id, double cantidad)}
+	 */
 	@Override
 	public void agregar(int id, double cantidad) {
         try {
@@ -64,7 +83,12 @@ public class BancoDaoBD implements BancoDao{
 		}
 
 	}
-
+	/**
+	 * Recibe una ID del usuario y retorna el saldo del usuario que ingresamos por parametro 
+	 * a través de la ID.
+	 * @return  double saldo
+	 * @see {@link BancoDaoBD Traer_Saldo(int id, double saldo)}
+	 */
 	@Override
 	public double Traer_Saldo(int id,double saldo) {
 		Usuario usu1 = null;
@@ -88,6 +112,10 @@ public class BancoDaoBD implements BancoDao{
 		}
 		return saldo = usu1.getSaldo();
     }
+	/**
+	 * Recibe el nombre del destino del saldo y la cantidad, actualiza el saldo del usuario y no retorna nada. 
+	 * @see {@link BancoDaoBD Tranferencia(String nombre, double cantidad)}
+	 */
 	@Override
 	public void Tranferencia(String nombre, double cantidad) {
 		
@@ -108,6 +136,11 @@ public class BancoDaoBD implements BancoDao{
 			}	
 		
 	}
+	/**
+	 * Recibe el nombre del usuario y retorna un double con el saldo de este.
+	 * @return double saldo
+	 * @see {@link BancoDaoBD traer_saldo_pornombre(String nombre, double saldo)}
+	 */
 	@Override
 	public double traer_saldo_pornombre(String nombre, double saldo) {
 		Usuario usu3 = null;
@@ -131,4 +164,5 @@ public class BancoDaoBD implements BancoDao{
 		}
 		return saldo = usu3.getSaldo();
 	}
+
 }
