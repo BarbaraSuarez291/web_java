@@ -28,7 +28,7 @@ public class ProductoController extends HttpServlet {
     public ProductoController() {
         super();
         dao = new ProductoDAO();
-        // TODO Auto-generated constructor stub
+        
     }
 
 	/**
@@ -48,6 +48,12 @@ public class ProductoController extends HttpServlet {
 		default -> response.getWriter().print("Not found (GET)");
 	}
 	}
+	/**
+	 * En esta seccion se gestionan las operaciones que realiza el empleado en el crud de productos 
+	 * por el metodo POST.
+	 * @param request = "accion";
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		var accion = request.getParameter("accion");
@@ -58,7 +64,7 @@ public class ProductoController extends HttpServlet {
 		case "delete" -> postDelete(request, response);
 		}
 	}
-
+	
 	private void getEditar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		var errorSession = request.getSession();
 		
@@ -92,7 +98,8 @@ public class ProductoController extends HttpServlet {
 		var rd = request.getRequestDispatcher("vistas/productos/crear.jsp");
 		rd.forward(request, response);
 	}
-
+	/** Retorna la vista principal,  en caso de que el cliente quiera añadir al carrito un
+	 * y no la cantidad de stock se retorna un mensaje de error.  **/
 	private void getIndex(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		var errorSession = request.getSession();
@@ -132,16 +139,18 @@ public class ProductoController extends HttpServlet {
 		rd.forward(request, response);
 	}
 
-
+	/** Recibe el id del producto y lo elimina de base de datos.
+	 * @param (HttpServletRequest request, HttpServletResponse response) **/
 	private void postDelete(HttpServletRequest request, HttpServletResponse response)  throws IOException {
-
 		var sId = request.getParameter("id");
 		var id = Integer.parseInt(sId);
 		dao.delete(id);
 		response.sendRedirect("ProductoController");
 		
 	}
-
+	/**Recibe el id del producto, realiza validaciones, en caso de error muestra el mensaje.
+	 *  En caso contrario actualiza el producto.
+	 *  @param  (HttpServletRequest request, HttpServletResponse response) **/
 	private void postUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		var sId = request.getParameter("id");
 		var id = Integer.parseInt(sId);
@@ -149,7 +158,7 @@ public class ProductoController extends HttpServlet {
 		var errorSession = request.getSession();
 		errorSession.setAttribute("mensaje", null);
 		errorSession.setAttribute("tipoMensaje", null);
-		//var tipoM = request.getSession();
+		
 		String mensaje = null;
 		String tipo = null;
 		if(request.getParameter("nombre").isEmpty() || request.getParameter("precio").isEmpty() || request.getParameter("cant").isEmpty()) {
@@ -174,8 +183,6 @@ public class ProductoController extends HttpServlet {
 				errorSession.setAttribute("tipoMensaje", tipo);
 				
 				response.sendRedirect("ProductoController?accion=editar&id="+id);
-				//String ruta = "ProductoController?accion=editar&id="+id;
-				//generarAlerta("danger", "El valor ingresado debe ser numerico.",ruta ,  request, response);
 				
 			}else {
 				var precio_prod = Double.parseDouble(precio);
@@ -189,8 +196,6 @@ public class ProductoController extends HttpServlet {
 					errorSession.setAttribute("tipoMensaje", tipo);
 					
 					response.sendRedirect("ProductoController?accion=editar&id="+id);
-					//String ruta = "ProductoController?accion=editar&id="+id;
-					//generarAlerta("danger", "No puede ingresar numero negativos",ruta ,  request, response);
 					
 					
 				}else{
@@ -210,17 +215,17 @@ public class ProductoController extends HttpServlet {
 				errorSession.setAttribute("tipoMensaje", tipo);
 				
 				response.sendRedirect("ProductoController?accion=editar&id="+id);
-				//response.sendRedirect("ProductoController?accion=editar&id="+id);
-				//String ruta = "ProductoController";
-				//generarAlerta("success", "Producto actualizado con exito!",ruta ,  request, response);
-				
+					
 				}
 			}
 			
 		}
 		
 	}
-
+	/** Recibe los datos del producto(nombre, precio y cantidad), realiza validaciones
+	 *  y finalmente crea el producto.
+	 *  @param (HttpServletRequest request, HttpServletResponse response)
+	 * **/
 	private void postInsert(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		request.setAttribute("mensaje", null);
 		
@@ -248,10 +253,9 @@ public class ProductoController extends HttpServlet {
 				if(cant_prod < 0 || precio_prod < 0.0) {
 					response.sendError(404, "No puede ingresar numero negativos.");
 					request.setAttribute("tipoMensaje", "danger");
-					//generarAlerta("danger ", "No puede ingresar numero negativos.", "vistas/productos/crear.jsp",  request, response);
 					
 				}else{
-					// Procesar
+					
 				var prod = new Producto(nombre, precio_prod, cant_prod);
 					try {
 						dao.insert(prod);
@@ -260,10 +264,8 @@ public class ProductoController extends HttpServlet {
 						RequestDispatcher rd;
 						rd=request.getRequestDispatcher("vistas/productos/crear.jsp");
 						rd.forward(request, response);
-						//generarAlerta("success", "Producto ingresado!", "ProductoController",  request, response);
-						//response.sendRedirect("ProductoController");
 					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
+						
 						e.printStackTrace();
 					}
 				}
@@ -271,7 +273,9 @@ public class ProductoController extends HttpServlet {
 		}
 	}
 	
-	
+	/** Recibe un String y retorna true si se pueda pasar a tipo Integer de lo contrario retorna false
+	 * @param String cadena
+	 * @return boolean **/
 	private static boolean isNumeric(String cadena){
 		try {
 			Integer.parseInt(cadena);
@@ -280,6 +284,9 @@ public class ProductoController extends HttpServlet {
 			return false;
 		}
 	}
+	/** Recibe un String y retorna true si se pueda pasar a tipo Double de lo contrario retorna false
+	 * @param String cadena
+	 * @return boolean **/
 	private static boolean isDouble(String cadena){
 		try {
 			Double.parseDouble(cadena);

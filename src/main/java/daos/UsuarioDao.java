@@ -31,8 +31,8 @@ import javax.servlet.RequestDispatcher;
 		        var con = ConexionFactory.getConexion();
 		        try {
 		            ps = (PreparedStatement) con.prepareStatement(consulta);
-		            ps.setString(1, nombre);
-		            ps.setString(2, clave);
+		            ps.setString(1, nombre.trim());
+		            ps.setString(2, clave.trim());
 		            rs = ps.executeQuery();
 		            rs.next();
 		            do {
@@ -108,8 +108,8 @@ import javax.servlet.RequestDispatcher;
 		    	var con = ConexionFactory.getConexion();
 	            ps = (PreparedStatement) con.prepareStatement(sentencia);
 	           
-	            ps.setString(1, usuario.getNombre());
-	            ps.setString(2, usuario.getClave());
+	            ps.setString(1, usuario.getNombre().trim());
+	            ps.setString(2, usuario.getClave().trim());
 	            ps.setString(3, usuario.getRol());
 	            ps.setDouble(4, 0);
 	            ps.executeUpdate();

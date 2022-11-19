@@ -55,7 +55,7 @@
     <form action="CompraController" method="post">
 
 		<input type="hidden" name="accion" value="misCompras">
-		<input type="hidden" name="id" value=1> <!-- estos seria el id del usuario -->
+		<input type="hidden" name="id" value=${ usuario.id }> <!-- estos seria el id del usuario -->
     <p>
 			<input class="btn btn-info" type="submit" value="Mis compras">
 		</p>

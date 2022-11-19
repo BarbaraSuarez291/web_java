@@ -12,7 +12,8 @@ import models.Producto;
 
 public class ProductoDAO {
 
-	
+	/** Inserta productos en la base de datos.
+	 * @param Producto **/
 	public void insert(Producto prod) throws ClassNotFoundException {
 		try {
 			
@@ -35,7 +36,8 @@ public class ProductoDAO {
 
 	}
 
-	
+	/** Lista todos los productos retornandolos dentro de una lista.
+	 * @return List< Producto > **/ 
 	public List<Producto> all() {
 		var list = new ArrayList<Producto>();
 
@@ -72,7 +74,9 @@ public class ProductoDAO {
 
 		return list;
 	}
-	
+	/** Se le pasa por parametro el id del producto y retorna el stock.
+	 * @param  (int idProd)
+	 * @return int (Retorna el stock)**/
 	public int obtenerStockDeProd(int idProd) {
 		int stock = 0;
 		
@@ -99,7 +103,9 @@ public class ProductoDAO {
 		
 		return stock;
 	}
-	
+	/** Se obtiene el Producto segun su id
+	 * @param  (int id)(id del producto)
+	 * @return Producto**/
 	public Producto getById(int id) {
 
 		Producto prod = null;
@@ -138,7 +144,9 @@ public class ProductoDAO {
 	
 	
 	
-
+	/** Actualiza los datos del producto en la base de datos.
+	 * Recibe por parametro un producto.
+	 * @param Producto **/
 	public void update(Producto prod) {
 		try {
 			var con = ConexionFactory.getConexion();
@@ -165,7 +173,8 @@ public class ProductoDAO {
 
 	}
 	
-	
+	/** Elimina el producto que coicida con el id pasado por parametro.
+	 * @param (int id) **/
 	public void delete(int id) {
 		try {
 			var con = ConexionFactory.getConexion();
@@ -188,7 +197,7 @@ public class ProductoDAO {
 
 	/**
 	 * Toma el arraylist productosCarrito y va actualizando el stock de los productos
-	 * @param ArrayList<ProdCarrito> productosCarrito
+	 * @param ArrayList< ProdCarrito > productosCarrito
 	 *  **/
 	public void actualizarStock(ArrayList<ProdCarrito> productosCarrito) {
 		for(ProdCarrito p : productosCarrito) {

@@ -22,6 +22,7 @@ import com.mysql.cj.Session;
 import daos.BancoDaoBD;
 import daos.UsuarioDao;
 import models.Usuario;
+import services.Service;
 
 /**
  * Servlet implementation class BancoController
@@ -252,32 +253,41 @@ public class BancoController extends HttpServlet {
 		int id_usu = (int) request.getSession().getAttribute("id_usuario");
 		
 		var recibo = request.getParameter("cantidad");
-		
-		double cantidad = Double.parseDouble(recibo);//Parseamos a double la cantidad recibida
-        //Procesamos los datos
-		var saldo = dao.Traer_Saldo(id_usu, cantidad);//Trae el saldo del usuario
-	   //Valida que no se ingresen numero negativos 
-		if( cantidad < 0 ){
-			request.setAttribute("Error", "No se pueden agregar saldos negativos");
+		Service s = new Service();
+		if(!s.isDouble(recibo)) { //Valida que no se ingresen datos q no sean de tipo Double
+			request.setAttribute("Error", "El tipo de dato no es numerico");
 			RequestDispatcher rd;
 			rd=request.getRequestDispatcher("errores.jsp");
 			rd.forward(request, response);
 			return;
 		}else {
-	
-		//Suma el saldo actual con el que agregamos 
-		var total =  cantidad  +  saldo;
+			double cantidad = Double.parseDouble(recibo);//Parseamos a double la cantidad recibida
+			//Procesamos los datos
+			var saldo = dao.Traer_Saldo(id_usu, cantidad);//Trae el saldo del usuario
+		   //Valida que no se ingresen numero negativos 
+			if( cantidad < 0 ){
+				request.setAttribute("Error", "No se pueden agregar saldos negativos");
+				RequestDispatcher rd;
+				rd=request.getRequestDispatcher("errores.jsp");
+				rd.forward(request, response);
+				return;
+			}else {
 		
-		//y lo actualiza
-		dao.agregar(id_usu,total);
-		
-		//Alerta que se realizo la operacion
-		request.setAttribute("Error", "Su saldo se agrego correctamente");
-		var rd = request.getRequestDispatcher("errores.jsp");
-		rd.forward(request, response);
-		return;
-	    
+			//Suma el saldo actual con el que agregamos 
+			var total =  cantidad  +  saldo;
+			
+			//y lo actualiza
+			dao.agregar(id_usu,total);
+			
+			//Alerta que se realizo la operacion
+			request.setAttribute("Error", "Su saldo se agrego correctamente");
+			var rd = request.getRequestDispatcher("errores.jsp");
+			rd.forward(request, response);
+			return;
+		    
+			}
 		}
+
 	}
 
 }

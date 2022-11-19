@@ -47,7 +47,7 @@
 				</form>
     				<div >
     				<br>
-		<p>Si ya tenes cuenta <a class="link-danger" href="Login.jsp" target="">AQUI</a></p>
+		<p>Si ya tenes cuenta <a class="link-danger" href="login.jsp" target="">AQUI</a></p>
 	</div>
     		</div>
     				

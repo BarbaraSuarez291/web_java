@@ -64,7 +64,9 @@ public class CompraController extends HttpServlet {
 		}
 	}
 	
-	
+	/** Redirige a la pagina de ventas. Donde se ve un listado de las mismas.
+	 * y se puede ingresar al detalle de cada una.
+	 * @param (HttpServletRequest request, HttpServletResponse response)**/
 	private void getVentas(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		var facturas = dao.all();
 		request.setAttribute("facturas", facturas );
@@ -73,7 +75,10 @@ public class CompraController extends HttpServlet {
 		
 	}
 
-
+	/**
+	 *Recibe el id del producto a eliminar del carrito.
+	 *Se actualiza la lista de los productos del carrito.
+	 * @param (HttpServletRequest request, HttpServletResponse response)**/
 	private void getEliminarProdCarrito(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		HttpSession miCarrito = request.getSession(); 
 		ArrayList<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
@@ -90,7 +95,7 @@ public class CompraController extends HttpServlet {
 		
 	}
 
-
+	/** Redirecciona a una vista de notificacion si la compra fue realizada con exito **/
 	private void getCompraExitosa(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		var sesion = request.getSession(); 
@@ -116,7 +121,8 @@ public class CompraController extends HttpServlet {
 		case "ver" -> postVerFactura(request, response);
 		}
 	}
-
+	/** Permite segun el id de factura vizualisar su detalle.
+	 * @param  (HttpServletRequest request, HttpServletResponse response)**/
 	private void postVerFactura(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		var sesion = request.getSession();
 		String rol = (String) sesion.getAttribute("rol");
@@ -139,7 +145,7 @@ public class CompraController extends HttpServlet {
 		}
 	}
 
-
+	/** Recibe el id del usuario y busca las compras(facturas) que coiciden con el mismo. **/
 	private void postVerCompras(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		var s_Id = request.getParameter("id");
@@ -152,12 +158,9 @@ public class CompraController extends HttpServlet {
 	}
 
 
-
+	/** Obtenemos el carrito desde la session y se lo pasa a la vista. **/
 	private void getCarrito(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//HttpSession miCarrito = request.getSession(); 
-		//List<ProdCarrito> productosCarrito ;
-		//productosCarrito = (List<ProdCarrito>) miCarrito.getAttribute("productosCarrito");
-		//var carrito = productosCarrito.stream().toList();
+		
 		HttpSession miCarrito = request.getSession(); 
 		ArrayList<ProdCarrito> productosCarrito = new ArrayList<ProdCarrito>();
 		if(productosCarrito!=null){
@@ -170,7 +173,8 @@ public class CompraController extends HttpServlet {
 		
 	}
 
-	
+	/**  Eliminar el carrito. Guardando en la sesion "productosCarrito" el valor null
+	 * **/
 	private void postVaciarCarrito(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		HttpSession miCarrito = request.getSession();
 		miCarrito.setAttribute("productosCarrito", null);

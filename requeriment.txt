@@ -1,0 +1,7 @@
+
+
+Base de datos: MySQL. 
+XAMPP.
+TomCat 9.
+Conector mySQL
+JSTL 1.2
