@@ -87,7 +87,7 @@ public class BancoController extends HttpServlet {
 		//Levanta los datos 
 		int id_usu = (int) request.getSession().getAttribute("id_usuario");
 		String  nombre = (String) request.getSession().getAttribute("nombre");
-		
+	
 		//Procesa los datos para armar la lista del usuario
 		request.setAttribute("nombre", nombre.trim());
 		var lista = dao.lista_usuario(id_usu);
@@ -130,6 +130,21 @@ public class BancoController extends HttpServlet {
 		int id_usuario = (int) request.getSession().getAttribute("id_usuario");
 		var recibido = request.getParameter("remover");
 		
+		Service s3 = new Service();
+		if(!s3.isDouble(recibido)) { //Valida que no se ingresen datos que no sean de tipo Double
+			request.setAttribute("Error", "El tipo de dato no es numerico");
+			var rd = request.getRequestDispatcher("errores.jsp");
+			rd.forward(request, response);
+			return;
+		}
+		
+		if(!s3.isVacio(recibido)) { //Valida que no se ingresen datos que no esten vacios
+			request.setAttribute("Error", "Ingrese un valor por favor");
+			var rd = request.getRequestDispatcher("errores.jsp");
+			rd.forward(request, response);
+			return;
+		}
+		
 		//Procesa los datos
 		double cant_remover = Double.parseDouble(recibido);//Parsea la cantidad recibida a double
 		double saldo1 = 0;
@@ -139,20 +154,14 @@ public class BancoController extends HttpServlet {
 		//A continuacion valida que el que la cantidad igresada no se mayor que saldo que tiene el usuario
 	    if(cant_remover > saldo) {
 			request.setAttribute("Error", "Saldo insuficiente para realizar esta operacion");
-			double saldo_reformado = 0;
-			dao.agregar(id_usuario, saldo_reformado);
-			RequestDispatcher rd;
-			rd=request.getRequestDispatcher("errores.jsp");
-			rd.forward(request, response);
+			var rd2 = request.getRequestDispatcher("errores.jsp");
+			rd2.forward(request, response);
 			return;
 		}
 	  //A continuacion valida que el que la cantidad igresada no sea un numero negativo.
 	    if (cant_remover < 0) {
 			request.setAttribute("Error", "Ingrese un valor valido");
-			double saldo_reformado2 = 0;
-			dao.agregar(id_usuario, saldo_reformado2);
-			RequestDispatcher rd1;
-			rd1=request.getRequestDispatcher("errores.jsp");
+			var rd1 = request.getRequestDispatcher("errores.jsp");
 			rd1.forward(request, response);
 			return;
 		}
@@ -163,11 +172,10 @@ public class BancoController extends HttpServlet {
 		
 	  //Alerta que se realizo la operacion
 	  request.setAttribute("Error", "Extraccion realizada correctamente");
-	  var rd = request.getRequestDispatcher("errores.jsp");
-	  rd.forward(request, response);
+	  var rd3 = request.getRequestDispatcher("errores.jsp");
+	  rd3.forward(request, response);
 	  return;
-			    
-	}
+	}	    
 	/**
 	 * Recibe el nombre del usuario que recibe la transferencia de saldo, la cantidad por parametros. La ID del usario que envia
 	 * el saldo lo recibe por sesion, contiene validaciones.
@@ -182,13 +190,39 @@ public class BancoController extends HttpServlet {
 		
 		int id_emisor = (int) request.getSession().getAttribute("id_usuario");
         
+		Service s5 = new Service();
+		 if(!s5.isString(nombre_destino)) { //Valida que no se ingresen datos sean string
+				request.setAttribute("Error", "El tipo de dato no es una cadena de texto");
+				RequestDispatcher rd;
+				rd=request.getRequestDispatcher("errores.jsp");
+				rd.forward(request, response);
+				return;
+	        }
+		 
+		 if(!s5.isVacio(nombre_destino)) { //Valida que no se ingresen datos vacios
+				request.setAttribute("Error", "Ingrese un valor por favor");
+				var rd = request.getRequestDispatcher("errores.jsp");
+				rd.forward(request, response);
+				return;
+			}
+		 if(!s5.isDouble(cantidad)) { //Valida que no se ingresen datos vacios
+				request.setAttribute("Error", "El tipo de dato no es numerico");
+				var rd = request.getRequestDispatcher("errores.jsp");
+				rd.forward(request, response);
+				return;
+			}
+		 if(!s5.isVacio(cantidad)) { //Valida que no se ingresen datos vacios
+				request.setAttribute("Error", "Ingrese un valor por favor");
+				var rd = request.getRequestDispatcher("errores.jsp");
+				rd.forward(request, response);
+				return;
+			}
 		//Aca valida que el nombre del destinatario exista
 		try {
 			var nombre_existe = daousu.existeUsuario(nombre_destino.trim());
 			if (nombre_existe == false) {
 				request.setAttribute("Error", "El nombre ingresado no existe");
-				RequestDispatcher rd1;
-				rd1=request.getRequestDispatcher("errores.jsp");
+				var rd1 = request.getRequestDispatcher("errores.jsp");
 				rd1.forward(request, response);
 				return;
 			}
@@ -197,7 +231,14 @@ public class BancoController extends HttpServlet {
 		}
 		
         var recibo = request.getParameter("cantidad");
-		
+		Service s1 = new Service();
+        if(!s1.isDouble(recibo)) { //Valida que no se ingresen datos que no sean de tipo Double
+			request.setAttribute("Error", "El tipo de dato no es numerico");
+			RequestDispatcher rd;
+			rd=request.getRequestDispatcher("errores.jsp");
+			rd.forward(request, response);
+			return;
+        }
 		double cantidad1 = Double.parseDouble(recibo);//Parseamos a double la cantidad recibida
 		double saldo = 0;
 		
@@ -254,12 +295,20 @@ public class BancoController extends HttpServlet {
 		
 		var recibo = request.getParameter("cantidad");
 		Service s = new Service();
-		if(!s.isDouble(recibo)) { //Valida que no se ingresen datos q no sean de tipo Double
+		
+		if(!s.isDouble(recibo)) { //Valida que no se ingresen datos que no sean de tipo Double
 			request.setAttribute("Error", "El tipo de dato no es numerico");
 			RequestDispatcher rd;
 			rd=request.getRequestDispatcher("errores.jsp");
 			rd.forward(request, response);
 			return;
+		}else if (!s.isVacio(recibo)) {
+			   //Valida que no se ingresen datos vacios
+				request.setAttribute("Error", "Ingrese un valor por favor");
+				var rd = request.getRequestDispatcher("errores.jsp");
+				rd.forward(request, response);
+				return;
+			
 		}else {
 			double cantidad = Double.parseDouble(recibo);//Parseamos a double la cantidad recibida
 			//Procesamos los datos

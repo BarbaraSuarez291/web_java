@@ -24,4 +24,26 @@ public class Service {
 			return false;
 		}
 	}
+	
+	public  boolean isString(String cadena){
+		try {
+			Double.parseDouble(cadena);
+			Integer.parseInt(cadena);
+			return false;
+		} catch (NumberFormatException nfe){
+			return true;
+		}
+	}
+	
+	public  boolean isVacio(String cadena){
+		try {
+			String cadena1 = "";
+			if(cadena == cadena1){
+			return true;
+			}
+		} catch (NumberFormatException nfe){
+			return false;
+		}
+		return true;
+	}
 }
